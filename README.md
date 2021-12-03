@@ -40,7 +40,7 @@ let schema = "{a:s, b:i, c:[i], d:{e:?}}";
 # Installation
 
 ```JavaScript
-npm install -s alt-schema
+npm install -s @sleeksky/alt-schema
 
 const {verify, check, shape, toAltSchema, addType } = require('@sleeksky/alt-schema')
 
