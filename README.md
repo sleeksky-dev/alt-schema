@@ -42,14 +42,14 @@ let schema = "{a:s, b:i, c:[i], d:{e:?}}";
 ```JavaScript
 npm install -s alt-schema
 
-const {verify, check, shape, toAltSchema, addType } = require('alt-schema')
+const {verify, check, shape, toAltSchema, addType } = require('@sleeksky/alt-schema')
 
-import { verify, check, shape, toAltSchema, addType } from 'alt-schema';
+import { verify, check, shape, toAltSchema, addType } from '@sleeksky/alt-schema';
 ```
 # toAltSchema
 Use this to build a schema automatically for any JSON object.
 ```JavaScript
-const {toAltSchema} = require('alt-schema');
+const {toAltSchema} = require('@sleeksky/alt-schema');
 
 let json = {"a":"foo", "b":1, "c": [1,2], "d": {"e": null}};
 
@@ -63,7 +63,7 @@ console.log(schema);
 # verify
 Verify any JSON object against a schema. This method throws an exception when validation fails.
 ```JavaScript
-const { verify } = require("alt-schema");
+const { verify } = require("@sleeksky/alt-schema");
 
 let schema = "{a:i,b:[i],c:?b}";
 let object = {"a":1, "b":[1,2,3], "c": 10}
@@ -74,7 +74,7 @@ verify(object, schema);
 # check
 Same as verify except returns boolean instead of throwing error
 ```JavaScript
-const {check} = require("verify-json");
+const {check} = require("@sleeksky/alt-schema");
 
 let schema = "{a:i,b:[i],c:?b}";
 let object = {"a":1, "b":[1,2,3], "c": 10}
@@ -85,7 +85,7 @@ verify(object, schema);
 # shape
 Returns an object in the shape of the schema, making best effort of using values from the data object.
 ```JavaScript
-const {shape} = require("verify-json");
+const {shape} = require("@sleeksky/alt-schema");
 
 let schema = "{a:i,b:[i],c:b}";
 let object = {"a":1, "b":[1], "d": 1}
@@ -96,7 +96,7 @@ shape(object, schema);
 # addType
 Add custom type validators and optionally provide default values when shaping objects
 ```JavaScript
-const {shape, addType} = require("verify-json");
+const {shape, addType} = require("@sleeksky/alt-schema");
 
 addType('url', (value) => {
   if (value === undefined) return 'https://example.com'; // shape sample
