@@ -1,18 +1,18 @@
 # Flat JSON Schema
 
-An alternate JSON schema specification and related utilities methods to define schemas and to validate and shape JSON objects.
+An alternate JSON schema specification and related utility methods to define schemas and to validate and shape JSON objects.
 
 # Background
 
-The official [JSON Schema](https://json-schema.org/) and various JSON validation libraries are great but for most of my use cases, I found them pretty verbose. I was looking for a one line solution to most JSON schema verifications.
+The official [JSON Schema](https://json-schema.org/) and various JSON validation libraries are great but for most of my use cases, I found them pretty verbose. I was looking for a one line solution for my JSON schema verifications.
 
-I came up with this schema initially as a way to catch UI errors when backend APIs changed, but later found it to be very handy for many other use cases as well. Think of "Flat JSON Schema" as a short hand for defining JSON structures.
+I came up with this schema initially as a way to catch UI errors when backend APIs changed, but later found it to be very handy for many other use cases as well. Think of "Flat JSON Schema" as a short hand for defining JSON schemas.
 
 The fact that it is a shorthand, also means it is lossy in terms of use case coverage. It will not address every use case, but for most practical purposes this might suffice.
 
 # Flat JSON Schema Syntax
 
-Flat JSON schema is a string only representation of schema of any JSON object.
+Flat JSON schema is a string only representation of schema of any JSON.
 
 There are few basic elements that form a flat JSON schema:
 1. **type**: A type could be any custom or basic data-type. It could be user defined. It is identified by a string. Example: `integer`, `boolean`, etc.
@@ -118,4 +118,4 @@ addType(["integer","i"], _.isInteger);
 ```
 # License
 
-MIT © Yusuf Bhabhrawala
+MIT © SleekSky LLC
