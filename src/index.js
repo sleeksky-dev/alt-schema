@@ -75,7 +75,7 @@ const flatten = (schema) => {
   return [schema, lookups, default_strings];
 };
 
-const toFlatSchema = (json) => {
+const toAltSchema = (json) => {
   let schema = "";
   function traverse(obj) {
     let type = getType(obj);
@@ -253,4 +253,4 @@ const check = (json, schema) => {
   }
 };
 
-export { verify, check, shape, addType, toFlatSchema };
+export { verify, check, shape, addType, toAltSchema };

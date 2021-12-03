@@ -4,11 +4,11 @@
 /* eslint-disable no-unused-expressions */
 import chai, { assert, expect } from 'chai';
 import _ from 'lodash';
-import {verify, shape, check, toFlatSchema, addType} from '../src';
+import {verify, shape, check, toAltSchema, addType} from '../src';
 
-describe('toFlatSchema', () => {
+describe('toAltSchema', () => {
   it('should return schema', () => {
-    var sch = toFlatSchema({a: 1, b: true, c: null, d: [1,2], e: {a: 10.4, b: ["hello"]}});
+    var sch = toAltSchema({a: 1, b: true, c: null, d: [1,2], e: {a: 10.4, b: ["hello"]}});
     assert(sch === '{a:i,b:b,c:?,d:[i],e:{a:n,b:[s]}}');
   })
 })
