@@ -91,6 +91,7 @@ const shape = (json, schema, options = {}) => {
   
     // flat validator value = {k:t:d,..} [t:d,..] t:d
   function traverse({ value, schema }) {
+    //console.log('traverse', value, schema);
     if (!schema) schema = "";
     let m;
     let optional = false;
@@ -100,7 +101,7 @@ const shape = (json, schema, options = {}) => {
     }
 
     // if lookup, validate further
-    if ((m = schema.match(RX_LOOKUP))) return traverse({ value, schema: lookups[schema * 1] });
+    if ((m = schema.match(RX_LOOKUP))) return traverse({ value, schema: `${optional?'?':''}${lookups[schema * 1]}` });
 
     if ((value === null || value === undefined) && optional && excludeOptional) return null;
 
@@ -160,13 +161,15 @@ const verify = (json, schema, options) => {
     let m;
     let type = null;
 
+    let optional = false;
     if (schema.match(RX_OPTIONAL)) {
       schema = schema.substr(1);
       if (value === undefined || value === null) return true;
+      optional = true;
     }
 
     // if lookup, validate further
-    if ((m = schema.match(RX_LOOKUP))) return validate({ path: `${path}`, value, schema: lookups[schema * 1], parent: parent });
+    if ((m = schema.match(RX_LOOKUP))) return validate({ path: `${path}`, value, schema: `${optional?'?':''}${lookups[schema * 1]}`, parent: parent });
 
     if (schema.match(RX_FLAT_SCALAR)) {
       // if scalar

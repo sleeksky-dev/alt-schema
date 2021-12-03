@@ -45,6 +45,13 @@ describe('Shape', () => {
     obj = shape({a:1}, "{a:?,b:?i}");
     assert(obj.b !== null);
   });
+
+  it('should exclude optional objects', () => {
+    let obj = shape({}, "{a:?{b:i}}", {excludeOptional: false});
+    assert.deepEqual(obj, {a: {b: 2}});
+    obj = shape({}, "{a:?{b:i}}", {excludeOptional: true});
+    assert.deepEqual(obj, {a: null});
+  });
 });
 
 describe('Check', () => {
