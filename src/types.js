@@ -1,0 +1,43 @@
+import {isArray, isObject, isString, isNumber, isBoolean, isInteger} from "lodash";
+
+const types = {};
+
+function get(obj) {
+    if (obj === null) return "?";
+    if (obj === undefined) return "?";
+    if (isArray(obj)) return "array";
+    if (isObject(obj)) return "object";
+    if (isString(obj)) return "s";
+    if (isInteger(obj)) return "i";
+    if (isBoolean(obj)) return "b";
+    if (isNumber(obj)) return "n";
+    return "?";
+}
+
+function add(k, fn) {
+    if (!isArray(k)) k = [k];
+    k.forEach(n => {
+        types[n] = fn;
+    });
+}
+
+function has(k) {
+    return !!types[k];
+}
+
+function check(k, obj, opts) {
+    if (!has(k)) return false;
+    return types[k](obj, opts);
+}
+
+function sample(k) {
+    if (!has(k)) return null;
+    return types[k]();
+}
+
+add(["string","s"], (v) => v !== undefined ? isString(v) : "String value!");
+add(["number","n"], (v) => v !== undefined ? isNumber(v) : 2);
+add(["boolean","b"], (v) => v !== undefined ? isBoolean(v) : true);
+add(["integer","i"], (v) => v !== undefined ? isInteger(v) : 2);
+
+export {add, get, has, check, sample};

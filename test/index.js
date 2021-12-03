@@ -4,7 +4,7 @@
 /* eslint-disable no-unused-expressions */
 import chai, { assert, expect } from 'chai';
 import _ from 'lodash';
-import {verify, shape, check, toAltSchema, addType} from '../src';
+import {verify, shape, check, toAltSchema, addType, options} from '../src';
 
 describe('toAltSchema', () => {
   it('should return schema', () => {
@@ -36,6 +36,14 @@ describe('Shape', () => {
   it('should extend values', () => {
     let val = shape({a:{},b:[]}, "{a:{a1:i,a2:s},b:[i,s]}");
     assert.deepEqual(val, { a: { a1: 2, a2: 'String value!' }, b: [ 2, 'String value!' ] })
+  });
+
+  it('should support global options', () => {
+    let obj = shape({a:1}, "{a:?,b:?i}");
+    assert(obj.b === null);
+    options({excludeOptional: false});
+    obj = shape({a:1}, "{a:?,b:?i}");
+    assert(obj.b !== null);
   });
 });
 

@@ -6,8 +6,7 @@
 /* eslint-disable no-restricted-syntax */
 /* eslint-disable no-cond-assign */
 import {isArray, isObject, isString, isNumber, isBoolean, isInteger} from "lodash";
-
-const types = {};
+import * as types from "./types";
 
 const RX_FLAT_ARRAY = /(\[([^\[\]\{\}]*)\])/;
 const RX_FLAT_OBJECT = /(\{([^\{\}\[\]]*)\})/;
@@ -16,29 +15,11 @@ const RX_FLAT_SCALAR = /^[^\[\]\{\}]*$/;
 const RX_OPTIONAL = /^[\?]/;
 const RX_LOOKUP = /^[0-9]+$/;
 
-function getType(obj) {
-  if (obj === null) return "?";
-  if (obj === undefined) return "?";
-  if (isArray(obj)) return "array";
-  if (isObject(obj)) return "object";
-  if (isString(obj)) return "s";
-  if (isInteger(obj)) return "i";
-  if (isBoolean(obj)) return "b";
-  if (isNumber(obj)) return "n";
-  return "?";
-}
+const OPTIONS = {excludeOptional: true, errorName: 'json'};
 
-function addType(k, fn) {
-  if (!isArray(k)) k = [k];
-  k.forEach(n => {
-    types[n] = fn;
-  });
+const options = (opts) => {
+  Object.assign(OPTIONS, opts);
 }
-
-addType(["string","s"], (v) => v !== undefined ? isString(v) : "String value!");
-addType(["number","n"], (v) => v !== undefined ? isNumber(v) : 2);
-addType(["boolean","b"], (v) => v !== undefined ? isBoolean(v) : true);
-addType(["integer","i"], (v) => v !== undefined ? isInteger(v) : 2);
 
 const flatten = (schema) => {
   let lookups = [];
@@ -78,7 +59,7 @@ const flatten = (schema) => {
 const toAltSchema = (json) => {
   let schema = "";
   function traverse(obj) {
-    let type = getType(obj);
+    let type = types.get(obj);
     if (type === "array") {
       let sch = obj.length > 0 ? traverse(obj[0]) : "";
       return `[${sch}]`;
@@ -94,7 +75,7 @@ const toAltSchema = (json) => {
 };
 
 const shape = (json, schema, options = {}) => {
-  options = Object.assign({excludeOptional: false}, options);
+  options = Object.assign({}, OPTIONS, options);
   let excludeOptional = options.excludeOptional;
   let lookups, default_strings;
   [schema, lookups, default_strings] = flatten(schema);
@@ -103,7 +84,7 @@ const shape = (json, schema, options = {}) => {
     let m;
     if (def && (m = def.match(/^\$([0-9]+)$/))) def = default_strings[m[1] * 1];
 
-    if (types[type]) return (value && types[type](value)) ? value : (def !== undefined) ? def : types[type]();
+    if (types.has(type)) return (value && types.check(type, value)) ? value : (def !== undefined) ? def : types.sample(type);
 
     return value || def || "Not defined!";
   };
@@ -164,7 +145,7 @@ const shape = (json, schema, options = {}) => {
 };
 
 const verify = (json, schema, options) => {
-  options = Object.assign({name: 'json'}, options);
+  options = Object.assign({}, OPTIONS, options);
   let errors = [];
 
   let lookups;
@@ -197,8 +178,8 @@ const verify = (json, schema, options) => {
 
       if (schema === "") return true; // no validation needed
 
-      if (!types[schema]) throw `Schema error: Validator - ${schema} - not found`;
-      else if (types[schema](value, { path, json, parent })) return true;
+      if (!types.has(schema)) throw `Schema error: Validator - ${schema} - not found`;
+      else if (types.check(schema, value, { path, json, parent })) return true;
       else {
         errors.push(`${path}: validation failed`);
         return false;
@@ -236,7 +217,7 @@ const verify = (json, schema, options) => {
 
   }
 
-  validate({ path: options.name, value: json, schema });
+  validate({ path: options.errorName, value: json, schema });
   if (errors.length > 0) throw errors.join(", ");
 
   return true;
@@ -253,4 +234,6 @@ const check = (json, schema) => {
   }
 };
 
-export { verify, check, shape, addType, toAltSchema };
+const addType = types.add;
+
+export { verify, check, shape, addType, toAltSchema, options };
