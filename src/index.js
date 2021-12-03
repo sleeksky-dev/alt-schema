@@ -102,9 +102,10 @@ const shape = (json, schema, options = {}) => {
     // if lookup, validate further
     if ((m = schema.match(RX_LOOKUP))) return traverse({ value, schema: lookups[schema * 1] });
 
+    if ((value === null || value === undefined) && optional && excludeOptional) return null;
+
     if (schema.match(RX_FLAT_SCALAR)) {
       // if scalar
-      if (!value && optional && excludeOptional) return null;
       let type, def;
       [type, def] = schema.split(":");
       return getValue(type, value, def);
