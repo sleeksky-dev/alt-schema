@@ -1,7 +1,7 @@
 {
-  "name": "flat-json",
+  "name": "alt-schema",
   "version": "1.0.0",
-  "description": "Flat JSON Schema specification and basic utility methods",
+  "description": "Alternate JSON Schema spec with basic utility methods",
   "main": "./lib/index.js",
   "scripts": {
     "clean": "rimraf lib",
@@ -21,12 +21,12 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/sleeksky-dev/flat-json.git"
+    "url": "git+https://github.com/sleeksky-dev/alt-schema.git"
   },
   "keywords": [
     "json",
     "json-schema",
-    "flat-json-schema",
+    "alt-schema-schema",
     "validator",
     "jsonschema",
     "json-schema-validator",
@@ -35,9 +35,9 @@
   "author": "Yusuf Bhabhrawala <yusuf@sleeksky.com>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/sleeksky-dev/flat-json/issues"
+    "url": "https://github.com/sleeksky-dev/alt-schema/issues"
   },
-  "homepage": "https://github.com/sleeksky-dev/flat-json#readme",
+  "homepage": "https://github.com/sleeksky-dev/alt-schema#readme",
   "devDependencies": {
     "babel-cli": "^6.26.0",
     "babel-eslint": "^10.0.1",
