@@ -4,7 +4,7 @@
 /* eslint-disable no-unused-expressions */
 import chai, { assert, expect } from 'chai';
 import _ from 'lodash';
-import {verify, shape, check, toAltSchema, addType, options} from '../src';
+import {verify, shape, check, toAltSchema, config} from '../src';
 
 describe('toAltSchema', () => {
   it('should return schema', () => {
@@ -23,10 +23,10 @@ describe('Shape', () => {
     assert.deepEqual(val, {a: [1,2,3]});
   });
 
-  addType('url', (val) => {
+  config({types:{'url': (val) => {
     if (val === undefined) return 'http://example.com';
     return (typeof val === 'string' || val instanceof String) ? true : false;
-  });
+  }}});
 
   it('should use custom type default', () => {
     let val = shape({a: 1}, "{a:url,b:?url}", {excludeOptional: false});
@@ -41,7 +41,7 @@ describe('Shape', () => {
   it('should support global options', () => {
     let obj = shape({a:1}, "{a:?,b:?i}");
     assert(obj.b === null);
-    options({excludeOptional: false});
+    config({options: {excludeOptional: false}});
     obj = shape({a:1}, "{a:?,b:?i}");
     assert(obj.b !== null);
   });
@@ -95,6 +95,7 @@ describe('Verify', () => {
     expect(() => verify([1, 2, 3], '{}')).to.throw('json: should be object');
     expect(verify([1, 2, 3], '[i]')).to.be.true;
     expect(() => verify([1, '2', 3], '[i]')).to.throw('json.1: validation failed');
+    expect(() => verify({a: 1}, '{a:[]}')).to.throw('json.a: should be array');
   });
   
   it('should support sample defaults in schema', () => {
@@ -109,24 +110,24 @@ describe('Verify', () => {
   });
 
   it('should work with custom validators', () => {
-    addType('custom', function (v, args) {
+    config({types: {'custom': function (v, args) {
       return v === 'hello';
-    });
+    }}});
     
     assert(verify({ a: 'hello' }, '{a: custom }') === true, 'Failed');
 
-    addType('my_val', function (v, args) {
+    config({types:{'my_val': function (v, args) {
       return v === 'hello';
-    });
+    }}});
     assert(verify({ a: 'hello' }, '{a:my_val }') === true, 'Failed' );
 
     expect(() =>
       verify({ a: 'world' }, '{a:my_val }')
     ).to.throw('json.a: validation failed');
 
-    addType('custom', function (v, args) {
+    config({types: {'custom': function (v, args) {
       return (args.parent.type === 'foo' && v === 'bar') || (args.parent.type === 'hello' && v === 'world');
-    });
+    }}});
 
     let json = [
       { type: 'hello', value: 'world' },
@@ -162,8 +163,10 @@ describe('Verify', () => {
         '[{a:i,b:i}]'
       )
     ).to.throw('json.1.b: validation failed');
-    addType('lat', (val) => val >= -90 && val <= 90);
-    addType('long', (val) => val >= -180 && val <= 180);
+    config({types:{
+      'lat': (val) => val >= -90 && val <= 90,
+      'long': (val) => val >= -180 && val <= 180
+    }});
     expect(
       verify(
         {

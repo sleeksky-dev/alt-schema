@@ -93,14 +93,18 @@ shape(object, schema);
 // {"a": 1, "b":[1], "c":true}
 ```
 
-# addType
+# config - types
 Add custom type validators and optionally provide default values when shaping objects
 ```JavaScript
-const {shape, addType} = require("@sleeksky/alt-schema");
+const {shape, config} = require("@sleeksky/alt-schema");
 
-addType('url', (value) => {
-  if (value === undefined) return 'https://example.com'; // shape sample
-  return value.match(/^http/) ? true : false;
+config({
+  types: {
+    'url': (value) => {
+      if (value === undefined) return 'https://example.com'; // shape sample
+      return value.match(/^http/) ? true : false;
+    }
+  }
 });
 
 shape(null, "{img:url}");
@@ -109,13 +113,27 @@ shape(null, "{img:url}");
 # Built in types
 The following built in types are available for use:
 ```JavaScript
-addType(["string","s"], _.isString);
-addType(["number","n"], _.isNumber);
-addType(["boolean","b"], _.isBoolean);
-addType(["integer","i"], _.isInteger);
+"string" or "s": _.isString
+"number" or "n": _.isNumber
+"boolean" or "b": _.isBoolean
+"integer" or "i": _.isInteger
 
-// Note: An array for type name is to specify multiple names for same type.
 ```
+
+# config - options
+The following config options are supported:
+```JavaScript
+config({
+  options: {
+    // when using shape, returns default for missing optional values
+    excludeOptional: true, 
+
+    // the name of the JSON object variable in verify error message
+    errorName: 'json' 
+  }
+})
+```
+
 # License
 
 MIT © SleekSky LLC

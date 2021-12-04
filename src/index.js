@@ -17,8 +17,9 @@ const RX_LOOKUP = /^[0-9]+$/;
 
 const OPTIONS = {excludeOptional: true, errorName: 'json'};
 
-const options = (opts) => {
-  Object.assign(OPTIONS, opts);
+const config = (opt) => {
+  if (opt.options) Object.assign(OPTIONS, opt.options);
+  if (opt.types) for(let k in opt.types) types.add(k, opt.types[k]);
 }
 
 const flatten = (schema) => {
@@ -238,6 +239,4 @@ const check = (json, schema) => {
   }
 };
 
-const addType = types.add;
-
-export { verify, check, shape, addType, toAltSchema, options };
+export { verify, check, shape, toAltSchema, config };
