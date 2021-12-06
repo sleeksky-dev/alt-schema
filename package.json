@@ -1,6 +1,6 @@
 {
   "name": "@sleeksky/alt-schema",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Alternate JSON Schema spec with basic utility methods",
   "main": "./lib/index.js",
   "scripts": {

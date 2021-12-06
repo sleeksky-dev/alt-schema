@@ -28,9 +28,9 @@ const flatten = (schema) => {
   let default_strings = [];
   let m;
   // convert "hello world" to $0. remote " (quotes)
-  while(m = schema.match(/("[^"]+")/)) {
+  while(m = schema.match(/"([^"]+)"/)) {
     schema = schema.substr(0, m.index) + `$${default_strings.length}` + schema.substr(m.index + m[0].length);
-    default_strings.push(m[0]);
+    default_strings.push(m[1]);
   }
   if (schema.match(/"/)) throw "Missing closing quote";
 

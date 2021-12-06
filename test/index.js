@@ -46,6 +46,11 @@ describe('Shape', () => {
     assert(obj.b !== null);
   });
 
+  it('should shape default in quotes', () => {
+    let obj = shape({},'{a:s:"hello"}');
+    assert(obj.a === 'hello');
+  });
+
   it('should exclude optional objects', () => {
     let obj = shape({}, "{a:?{b:i}}", {excludeOptional: false});
     assert.deepEqual(obj, {a: {b: 2}});
