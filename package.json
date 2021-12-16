@@ -1,7 +1,7 @@
 {
   "name": "@sleeksky/alt-schema",
-  "version": "1.2.1",
-  "description": "Alternate JSON Schema spec with basic utility methods",
+  "version": "1.2.2",
+  "description": "Easify verify and shape JSON objects using a simplified alternative JSON schema",
   "main": "./lib/index.js",
   "scripts": {
     "clean": "rimraf lib",

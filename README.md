@@ -1,7 +1,16 @@
 # Alt JSON Schema
 
-An alternate JSON schema specification and related utility methods to define schemas and to validate and shape JSON objects.
+Easily verify and even shape JSON objects using a simplified alternative JSON schema syntax
 
+# Installation
+
+```JavaScript
+npm install -s @sleeksky/alt-schema
+
+const {verify, check, shape, toAltSchema, config } = require('@sleeksky/alt-schema')
+
+import { verify, check, shape, toAltSchema, config } from '@sleeksky/alt-schema';
+```
 # Background
 
 The official [JSON Schema](https://json-schema.org/) and various JSON validation libraries are great but for most of my use cases, I found them pretty verbose. I was looking for a one line solution for my JSON schema verifications.
@@ -37,15 +46,6 @@ let schema = "{a:s, b:i, c:[i], d:{e:?}}";
 // Spaces/newlines are to be ignored
 ```
 
-# Installation
-
-```JavaScript
-npm install -s @sleeksky/alt-schema
-
-const {verify, check, shape, toAltSchema, addType } = require('@sleeksky/alt-schema')
-
-import { verify, check, shape, toAltSchema, addType } from '@sleeksky/alt-schema';
-```
 # toAltSchema
 Use this to build a schema automatically for any JSON object.
 ```JavaScript
