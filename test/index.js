@@ -144,6 +144,12 @@ describe('Verify', () => {
     expect(() => verify(json, '[{type:s, value: custom }]')).to.throw('json.0.value: validation failed');
   });
 
+  it('should support enum validators', () => {
+    config({types: {x: ['foo', 'bar']}});
+    expect(verify({ a: 'foo' }, '{a:x}')).to.be.true;
+    expect(() => verify({ a: 'baz' }, '{a:x}')).to.throw('json.a: validation failed');
+  });
+
   it('should work with complex objects', () => {
     expect(() => verify({ a: 1, b: { c: 'a', d: [1, '2', { e: true }] } }, '{a:i,b:{c,d:[i,s,{e:i}]}}')).to.throw(
       'json.b.d.2.e: validation failed'

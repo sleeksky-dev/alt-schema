@@ -239,4 +239,6 @@ const check = (json, schema) => {
   }
 };
 
+types.verify = verify;
+
 export { verify, check, shape, toAltSchema, config };

@@ -2,6 +2,8 @@ import {isArray, isObject, isString, isNumber, isBoolean, isInteger} from "lodas
 
 const types = {};
 
+let verify = null;
+
 function get(obj) {
     if (obj === null) return "?";
     if (obj === undefined) return "?";
@@ -15,6 +17,15 @@ function get(obj) {
 }
 
 function add(k, fn) {
+    // support enum types
+    if (isArray(fn)) {
+        fn = ((lk => {
+            return (v) => {
+                if (v !== undefined) return !isString(v) || lk.indexOf(v) >= 0;
+                else return lk[(Math.random() * lk.length) | 0];
+            }
+        }))(fn);
+    }
     if (!isArray(k)) k = [k];
     k.forEach(n => {
         types[n] = fn;
@@ -40,4 +51,4 @@ add(["number","n"], (v) => v !== undefined ? isNumber(v) : 2);
 add(["boolean","b"], (v) => v !== undefined ? isBoolean(v) : true);
 add(["integer","i"], (v) => v !== undefined ? isInteger(v) : 2);
 
-export {add, get, has, check, sample};
+export {add, get, has, check, sample, verify};
