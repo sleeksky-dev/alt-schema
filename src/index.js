@@ -8,12 +8,14 @@
 import {isArray, isObject, isString, isNumber, isBoolean, isInteger} from "lodash";
 import * as types from "./types";
 
-const RX_FLAT_ARRAY = /(\[([^\[\]\{\}]*)\])/;
-const RX_FLAT_OBJECT = /(\{([^\{\}\[\]]*)\})/;
-const RX_MALFORMED = /[\[\]\{\}]/;
-const RX_FLAT_SCALAR = /^[^\[\]\{\}]*$/;
-const RX_OPTIONAL = /^[\?]/;
-const RX_LOOKUP = /^[0-9]+$/;
+const RX = {
+  FLAT_ARRAY: /(\[([^\[\]\{\}]*)\])/,
+  FLAT_OBJECT: /(\{([^\{\}\[\]]*)\})/,
+  MALFORMED: /[\[\]\{\}]/,
+  FLAT_SCALAR: /^[^\[\]\{\}]*$/,
+  OPTIONAL: /^[\?]/,
+  LOOKUP: /^[0-9]+$/
+}
 
 const OPTIONS = {excludeOptional: true, errorName: 'json'};
 
@@ -40,14 +42,14 @@ const flatten = (schema) => {
   function reduce(schema) {
     let m;
     let found = false;
-    while ((m = schema.match(RX_FLAT_ARRAY)) || (m = schema.match(RX_FLAT_OBJECT))) {
+    while ((m = schema.match(RX.FLAT_ARRAY)) || (m = schema.match(RX.FLAT_OBJECT))) {
       schema = schema.substr(0, m.index) + lookups.length + schema.substr(m.index + m[0].length);
       lookups.push(m[0]);
       found = true;
     }
 
     if (found) reduce(schema);
-    if (!found && schema.match(RX_MALFORMED) ) {
+    if (!found && schema.match(RX.MALFORMED) ) {
       throw "Schema error: probably invalid braces or brackets";
     }
     return schema;
@@ -96,23 +98,23 @@ const shape = (json, schema, options = {}) => {
     if (!schema) schema = "";
     let m;
     let optional = false;
-    if (schema.match(RX_OPTIONAL)) {
+    if (schema.match(RX.OPTIONAL)) {
       schema = schema.substr(1);
       optional = true;
     }
 
     // if lookup, validate further
-    if ((m = schema.match(RX_LOOKUP))) return traverse({ value, schema: `${optional?'?':''}${lookups[schema * 1]}` });
+    if ((m = schema.match(RX.LOOKUP))) return traverse({ value, schema: `${optional?'?':''}${lookups[schema * 1]}` });
 
     if ((value === null || value === undefined) && optional && excludeOptional) return null;
 
-    if (schema.match(RX_FLAT_SCALAR)) {
+    if (schema.match(RX.FLAT_SCALAR)) {
       // if scalar
       let type, def;
       [type, def] = schema.split(":");
       return getValue(type, value, def);
 
-    } else if ((m = schema.match(RX_FLAT_ARRAY))) {
+    } else if ((m = schema.match(RX.FLAT_ARRAY))) {
       // if array
       schema = m[2];
       let schema_parts = schema.split(",");
@@ -123,7 +125,7 @@ const shape = (json, schema, options = {}) => {
       
       return value.map((v,i) => traverse({ value: v, schema: schema_parts[i % schema_parts.length] }));
 
-    } else if ((m = schema.match(RX_FLAT_OBJECT))) {
+    } else if ((m = schema.match(RX.FLAT_OBJECT))) {
       // if object
       if (!isObject(value) || isArray(value)) {
         value = {};
@@ -163,16 +165,16 @@ const verify = (json, schema, options) => {
     let type = null;
 
     let optional = false;
-    if (schema.match(RX_OPTIONAL)) {
+    if (schema.match(RX.OPTIONAL)) {
       schema = schema.substr(1);
       if (value === undefined || value === null) return true;
       optional = true;
     }
 
     // if lookup, validate further
-    if ((m = schema.match(RX_LOOKUP))) return validate({ path: `${path}`, value, schema: `${optional?'?':''}${lookups[schema * 1]}`, parent: parent });
+    if ((m = schema.match(RX.LOOKUP))) return validate({ path: `${path}`, value, schema: `${optional?'?':''}${lookups[schema * 1]}`, parent: parent });
 
-    if (schema.match(RX_FLAT_SCALAR)) {
+    if (schema.match(RX.FLAT_SCALAR)) {
       // if scalar
       let def;
       [schema, def] = schema.split(":");
@@ -189,7 +191,7 @@ const verify = (json, schema, options) => {
         errors.push(`${path}: validation failed`);
         return false;
       }
-    } else if ((m = schema.match(RX_FLAT_ARRAY))) {
+    } else if ((m = schema.match(RX.FLAT_ARRAY))) {
       // if array
       if (!isArray(value)) {
         errors.push(`${path}: should be array`);
@@ -200,7 +202,7 @@ const verify = (json, schema, options) => {
       for (let i in value) {
         validate({ path: `${path}.${i}`, value: value[i], schema: schema_parts[i % schema_parts.length], parent: value });
       }
-    } else if ((m = schema.match(RX_FLAT_OBJECT))) {
+    } else if ((m = schema.match(RX.FLAT_OBJECT))) {
       // if object
       if (!isObject(value) || isArray(value)) {
         errors.push(`${path}: should be object`);
@@ -241,4 +243,4 @@ const check = (json, schema) => {
 
 types.verify = verify;
 
-export { verify, check, shape, toAltSchema, config, flatten };
+export { verify, check, shape, toAltSchema, config, flatten, RX };
