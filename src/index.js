@@ -241,4 +241,4 @@ const check = (json, schema) => {
 
 types.verify = verify;
 
-export { verify, check, shape, toAltSchema, config };
+export { verify, check, shape, toAltSchema, config, flatten };

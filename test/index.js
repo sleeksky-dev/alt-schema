@@ -4,7 +4,21 @@
 /* eslint-disable no-unused-expressions */
 import chai, { assert, expect } from 'chai';
 import _ from 'lodash';
-import {verify, shape, check, toAltSchema, config} from '../src';
+import {verify, shape, check, toAltSchema, config, flatten} from '../src';
+
+describe('flatten', () => {
+  it('should flatten', () => {
+    let [schema, lookups, defaults] = flatten('{a:i,b:{c:s,d:s},e:s}');
+    assert(schema === '1');
+    assert(lookups.length === 2);
+    assert(lookups[0] === '{c:s,d:s}');
+  });
+  it.only('should flatten with defaults', () => {
+    let [schema, lookups, defaults] = flatten('{a:i:123,b:{c:s:"hello world",d:s:foo},e:s}');
+    assert(defaults[0] === 'hello world');
+    assert(lookups[0] === '{c:s:$0,d:s:foo}');
+  });
+});
 
 describe('toAltSchema', () => {
   it('should return schema', () => {
