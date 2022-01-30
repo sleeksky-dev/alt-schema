@@ -14,7 +14,8 @@ const RX = {
   MALFORMED: /[\[\]\{\}]/,
   FLAT_SCALAR: /^[^\[\]\{\}]*$/,
   OPTIONAL: /^[\?]/,
-  LOOKUP: /^[0-9]+$/
+  LOOKUP: /^[0-9]+$/,
+  DEFAULTS: /^\$([0-9]+)$/
 }
 
 const OPTIONS = {excludeOptional: true, errorName: 'json'};
@@ -59,6 +60,51 @@ const flatten = (schema) => {
   return [schema, lookups, default_strings];
 };
 
+function splitOnce(str, delim) {
+  let parts = str.split(delim);
+  let first = parts.shift();
+  return [first, parts.join(delim)];
+}
+
+// Set leaf types to format "optional:type:default_value" tuple. Eg. "?:boolean:false" or ":integer:"
+const typeShape = (schema) => {
+  let [sch, lookups, default_strings] = flatten(schema);
+
+  function traverse(sch) {
+    if (!sch) return "";
+    let m;
+    if (sch.match(RX.LOOKUP)) return traverse(lookups[sch*1]);
+    if (m = sch.match(RX.FLAT_ARRAY)) {
+      sch = m[2];
+      let schema_parts = sch.split(",");
+      console.log('schema_parts', schema_parts);
+      return schema_parts.length > 0 ? [traverse(schema_parts[0])] : [traverse("")];
+    }
+    if (m = sch.match(RX.FLAT_OBJECT)) {
+      sch = m[2];
+      return sch.split(",").reduce((acc, name) => {
+        let [k,v] = splitOnce(name, ":");
+        acc[k] = traverse(v);
+        return acc;
+      }, {});
+    }
+    if (sch.match(RX.FLAT_SCALAR)) {
+      let [type, def] = sch.split(":");
+      if (!def) def = "";
+      if (def && def.match(RX.DEFAULTS)) def = default_strings[def.substr(1)*1];
+      let optional = '';
+      if (type.match(RX.OPTIONAL)) {
+        optional = '?';
+        type = type.substr(1);
+      }
+      let type_lookup = {i: "integer", n: "number", b: "boolean", s: "string"};
+      if (type_lookup[type]) type = type_lookup[type];
+      return [optional, type, def].join(':');
+    }
+  }
+  return traverse(sch);
+}
+
 const toAltSchema = (json) => {
   let schema = "";
   function traverse(obj) {
@@ -85,7 +131,7 @@ const shape = (json, schema, options = {}) => {
 
   const getValue = (type, value, def) => {
     let m;
-    if (def && (m = def.match(/^\$([0-9]+)$/))) def = default_strings[m[1] * 1];
+    if (def && (m = def.match(RX.DEFAULTS))) def = default_strings[m[1] * 1];
 
     if (types.has(type)) return (value && types.check(type, value)) ? value : (def !== undefined) ? def : types.sample(type);
 
@@ -243,4 +289,4 @@ const check = (json, schema) => {
 
 types.verify = verify;
 
-export { verify, check, shape, toAltSchema, config, flatten, RX };
+export { verify, check, shape, toAltSchema, config, flatten, RX, typeShape };
