@@ -77,7 +77,6 @@ const typeShape = (schema) => {
     if (m = sch.match(RX.FLAT_ARRAY)) {
       sch = m[2];
       let schema_parts = sch.split(",");
-      console.log('schema_parts', schema_parts);
       return schema_parts.length > 0 ? [traverse(schema_parts[0])] : [traverse("")];
     }
     if (m = sch.match(RX.FLAT_OBJECT)) {
