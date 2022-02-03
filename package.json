@@ -1,6 +1,6 @@
 {
   "name": "@sleeksky/alt-schema",
-  "version": "1.2.2",
+  "version": "1.2.3",
   "description": "Easify verify and shape JSON objects using a simplified alternative JSON schema",
   "main": "./lib/index.js",
   "scripts": {
