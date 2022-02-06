@@ -56,7 +56,7 @@ describe('Shape', () => {
 
   it('should extend values', () => {
     let val = shape({a:{},b:[]}, "{a:{a1:i,a2:s},b:[i,s]}");
-    assert.deepEqual(val, { a: { a1: 2, a2: 'String value!' }, b: [ 2, 'String value!' ] })
+    assert.deepEqual(val, { a: { a1: 0, a2: '' }, b: [ 0, '' ] })
   });
 
   it('should support global options', () => {
@@ -74,7 +74,7 @@ describe('Shape', () => {
 
   it('should exclude optional objects', () => {
     let obj = shape({}, "{a:?{b:i}}", {excludeOptional: false});
-    assert.deepEqual(obj, {a: {b: 2}});
+    assert.deepEqual(obj, {a: {b: 0}});
     obj = shape({}, "{a:?{b:i}}", {excludeOptional: true});
     assert.deepEqual(obj, {a: null});
   });

@@ -46,9 +46,9 @@ function sample(k) {
     return types[k]();
 }
 
-add(["string","s"], (v) => v !== undefined ? isString(v) : "String value!");
-add(["number","n"], (v) => v !== undefined ? isNumber(v) : 2);
+add(["string","s"], (v) => v !== undefined ? isString(v) : "");
+add(["number","n"], (v) => v !== undefined ? isNumber(v) : 0);
 add(["boolean","b"], (v) => v !== undefined ? isBoolean(v) : true);
-add(["integer","i"], (v) => v !== undefined ? isInteger(v) : 2);
+add(["integer","i"], (v) => v !== undefined ? isInteger(v) : 0);
 
 export {add, get, has, check, sample, verify};
