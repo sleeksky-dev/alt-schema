@@ -1,4 +1,4 @@
-import {isArray, isObject, isString, isNumber, isBoolean, isInteger} from "lodash";
+import {isArray, isObject, isString, isNumber, isBoolean, isInteger, isFunction} from "lodash";
 
 const types = {};
 
@@ -13,6 +13,7 @@ function get(obj) {
     if (isInteger(obj)) return "i";
     if (isBoolean(obj)) return "b";
     if (isNumber(obj)) return "n";
+    if (isFunction(obj)) return "f";
     return "?";
 }
 
@@ -50,5 +51,6 @@ add(["string","s"], (v) => v !== undefined ? isString(v) : "");
 add(["number","n"], (v) => v !== undefined ? isNumber(v) : 0);
 add(["boolean","b"], (v) => v !== undefined ? isBoolean(v) : true);
 add(["integer","i"], (v) => v !== undefined ? isInteger(v) : 0);
+add(["function","f"], (v) => v !== undefined ? isFunction(v) : () => {});
 
 export {add, get, has, check, sample, verify};

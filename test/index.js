@@ -86,6 +86,12 @@ describe('Shape', () => {
     obj = shape({a:1, b:2, c:3}, "{*:i}");
     assert.deepEqual(obj, {a: 1, b: 2, c: 3 });
   });
+
+  it('should shape functions', () => {
+    let obj = shape({a:1, b:2, c:3}, "{a:i,b:s,c:f}");
+    assert.isFunction(obj.c);
+  })
+  
 });
 
 describe('Check', () => {
@@ -183,6 +189,10 @@ describe('Verify', () => {
     config({types: {x: ['foo', 'bar']}});
     expect(verify({ a: 'foo' }, '{a:x}')).to.be.true;
     expect(() => verify({ a: 'baz' }, '{a:x}')).to.throw('json.a: validation failed');
+  });
+
+  it('should verify functions', () => {
+    expect(verify({a:1, b:function(){}}, '{a:i,b:f}')).to.be.true;
   });
 
   it('should work with complex objects', () => {
