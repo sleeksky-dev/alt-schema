@@ -178,13 +178,19 @@ const shape = (json, schema, options = {}) => {
       schema = m[2];
       if (schema === "") return value;
 
-      return schema.split(",").reduce((acc, name) => {
+      let wildcard = false;
+      let shp = schema.split(",").reduce((acc, name) => {
         let [k, t, d] = name.split(":");
         if (!t) t = "";
         if (d) t += ":" + d;
-        acc[k] = traverse({ value: value[k], schema: t });
+        if (k === "*") wildcard = t;
+        else acc[k] = traverse({ value: value[k], schema: t });
         return acc;
       }, {});
+      if (wildcard !== false) {
+        for (let k in value) if (shp[k] === undefined) shp[k] = traverse({ value: value[k], schema: wildcard });
+      }
+      return shp;
       
     }
 
@@ -254,13 +260,17 @@ const verify = (json, schema, options) => {
         return false;
       }
       schema = m[2];
+      let wildcard = false;
       if (schema !== "") {
         let keys = schema.split(",").reduce((acc, name) => {
           let [k, t] = name.split(":");
           if (!t) t = "";
-          acc[k] = t;
+          if (k === '*') wildcard = t;
+          else acc[k] = t;
           return acc;
         }, {});
+
+        if (wildcard !== false) for (let k in value) if (keys[k] === undefined) keys[k] = wildcard;
   
         // if object, validate for all k-v
         for (let k in keys) validate({ path: `${path}.${k}`, value: value[k], schema: keys[k], parent: value });

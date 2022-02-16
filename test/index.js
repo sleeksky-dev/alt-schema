@@ -78,6 +78,14 @@ describe('Shape', () => {
     obj = shape({}, "{a:?{b:i}}", {excludeOptional: true});
     assert.deepEqual(obj, {a: null});
   });
+
+  it('should shape wildcard', () => {
+    let obj = shape({a:1, b:2, c:3}, "{a:i}");
+    assert.deepEqual(obj, {a: 1});
+
+    obj = shape({a:1, b:2, c:3}, "{*:i}");
+    assert.deepEqual(obj, {a: 1, b: 2, c: 3 });
+  });
 });
 
 describe('Check', () => {
@@ -112,6 +120,12 @@ describe('Verify', () => {
     expect(verify({ a: 1 }, '{a,b:?}')).to.be.true;
     expect(verify({ a: 1, b: false }, '{a,b}')).to.be.true;
     expect(() => verify({ a: 1, b: null }, '{a,b}')).to.throw('json.b: is required');
+  });
+
+  it('should verify * keys', () => {
+    expect(verify({a:1,b:2}, '{*:i}')).to.be.true;
+    expect(verify({a:1,b:"2"}, '{a:i,*:s}')).to.be.true;
+    expect(() => verify({a:1,b:"2"}, '{*:i}')).to.throw('json.b: validation failed');
   });
 
   it('should verify simple arrays', () => {
