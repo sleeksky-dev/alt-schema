@@ -7,9 +7,9 @@ Easily verify and even shape JSON objects using a simplified alternative JSON sc
 ```JavaScript
 npm install -s @sleeksky/alt-schema
 
-const {verify, check, shape, toAltSchema, config } = require('@sleeksky/alt-schema')
+const {verify, check, shape, toAltSchema, extendTypes } = require('@sleeksky/alt-schema')
 
-import { verify, check, shape, toAltSchema, config } from '@sleeksky/alt-schema';
+import { verify, check, shape, toAltSchema, extendTypes } from '@sleeksky/alt-schema';
 ```
 # Background
 
@@ -93,17 +93,15 @@ shape(object, schema);
 // {"a": 1, "b":[1], "c":true}
 ```
 
-# config - types
+# extendTypes
 Add custom type validators and optionally provide default values when shaping objects
 ```JavaScript
-const {shape, config} = require("@sleeksky/alt-schema");
+const {shape, extendTypes} = require("@sleeksky/alt-schema");
 
-config({
-  types: {
-    'url': (value) => {
-      if (value === undefined) return 'https://example.com'; // shape sample
-      return value.match(/^http/) ? true : false;
-    }
+extendTypes({
+  'url': (value) => {
+    if (value === undefined) return 'https://example.com'; // shape sample
+    return value.match(/^http/) ? true : false;
   }
 });
 
@@ -120,18 +118,18 @@ The following built in types are available for use:
 
 ```
 
-# config - options
+# other options
 The following config options are supported:
 ```JavaScript
-config({
-  options: {
-    // when using shape, returns default for missing optional values
-    excludeOptional: true, 
+verify({a:1},"{a:s}", {_path: 'my_property'})
 
-    // the name of the JSON object variable in verify error message
-    errorName: 'json' 
-  }
-})
+// Throws error: 'my_property.a: validation failed'
+
+shape({},"{a:?s}")
+// {a:null}
+
+shape({},"{a?s}", {_optional:true});
+// {a: ""}
 ```
 
 # License

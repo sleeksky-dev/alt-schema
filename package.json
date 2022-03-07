@@ -14,7 +14,6 @@
     "lint": "eslint src test",
     "build": "cross-env BABEL_ENV=production babel src --out-dir lib",
     "prepublish": "npm run clean && npm run test && npm run build",
-    "play": "cross-env BABEL_ENV=production babel src/play.js --out-dir lib",
     "types": "cross-env BABEL_ENV=production babel src/types.js --out-dir lib"
   },
   "files": [
