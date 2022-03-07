@@ -6,7 +6,7 @@
 /* eslint-disable no-restricted-syntax */
 /* eslint-disable no-cond-assign */
 import {isArray, isObject, isString, isNumber, isBoolean, isInteger} from "lodash";
-import * as types from "./types";
+import AltTypes from "./types";
 
 const RX = {
   FLAT_ARRAY: /(\[([^\[\]\{\}]*)\])/,
@@ -16,13 +16,6 @@ const RX = {
   OPTIONAL: /^[\?]/,
   LOOKUP: /^[0-9]+$/,
   DEFAULTS: /^\$([0-9]+)$/
-}
-
-const OPTIONS = {excludeOptional: true, errorName: 'json'};
-
-const config = (opt) => {
-  if (opt.options) Object.assign(OPTIONS, opt.options);
-  if (opt.types) for(let k in opt.types) types.add(k, opt.types[k]);
 }
 
 const flatten = (schema) => {
@@ -107,7 +100,7 @@ const typeShape = (schema) => {
 const toAltSchema = (json) => {
   let schema = "";
   function traverse(obj) {
-    let type = types.get(obj);
+    let type = AltTypes.toSchema(obj);
     if (type === "array") {
       let sch = obj.length > 0 ? traverse(obj[0]) : "";
       return `[${sch}]`;
@@ -123,8 +116,9 @@ const toAltSchema = (json) => {
 };
 
 const shape = (json, schema, options = {}) => {
-  options = Object.assign({}, OPTIONS, options);
-  let excludeOptional = options.excludeOptional;
+  const types = new AltTypes(options);
+  
+  options._optional = options._optional || false;
   let lookups, default_strings;
   [schema, lookups, default_strings] = flatten(schema);
 
@@ -151,7 +145,7 @@ const shape = (json, schema, options = {}) => {
     // if lookup, validate further
     if ((m = schema.match(RX.LOOKUP))) return traverse({ value, schema: `${optional?'?':''}${lookups[schema * 1]}` });
 
-    if ((value === null || value === undefined) && optional && excludeOptional) return null;
+    if ((value === null || value === undefined) && optional && !options._optional) return null;
 
     if (schema.match(RX.FLAT_SCALAR)) {
       // if scalar
@@ -200,9 +194,10 @@ const shape = (json, schema, options = {}) => {
   return result;
 };
 
-const verify = (json, schema, options) => {
-  options = Object.assign({}, OPTIONS, options);
+const verify = (json, schema, options={}) => {
+  const types = new AltTypes(options);
   let errors = [];
+  let jsonPath = options._path || 'json';
 
   let lookups;
   [schema, lookups] = flatten(schema);
@@ -279,7 +274,7 @@ const verify = (json, schema, options) => {
 
   }
 
-  validate({ path: options.errorName, value: json, schema });
+  validate({ path: jsonPath, value: json, schema });
   if (errors.length > 0) throw errors.join(", ");
 
   return true;
@@ -296,6 +291,4 @@ const check = (json, schema) => {
   }
 };
 
-types.verify = verify;
-
-export { verify, check, shape, toAltSchema, config, flatten, RX, typeShape };
+export { verify, check, shape, toAltSchema, flatten, RX, typeShape };

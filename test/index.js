@@ -4,7 +4,8 @@
 /* eslint-disable no-unused-expressions */
 import chai, { assert, expect } from 'chai';
 import _ from 'lodash';
-import {verify, shape, check, toAltSchema, config, flatten, typeShape} from '../src';
+import {verify, shape, check, toAltSchema, flatten, typeShape} from '../src';
+import AltTypes from '../src/types';
 
 describe('typeShape', () => {
   it('should return shape type', () => {
@@ -44,13 +45,12 @@ describe('Shape', () => {
     assert.deepEqual(val, {a: [1,2,3]});
   });
 
-  config({types:{'url': (val) => {
-    if (val === undefined) return 'http://example.com';
-    return (typeof val === 'string' || val instanceof String) ? true : false;
-  }}});
-
   it('should use custom type default', () => {
-    let val = shape({a: 1}, "{a:url,b:?url}", {excludeOptional: false});
+    let val = shape({a: 1}, "{a:url,b:?url}", {_optional: true, 'url': (val) => {
+      if (val === undefined) return 'http://example.com';
+      return (typeof val === 'string' || val instanceof String) ? true : false;
+    }});
+    console.log('val', val);
     assert.deepEqual(val, {a: 'http://example.com', b: 'http://example.com'});
   })
 
@@ -62,8 +62,7 @@ describe('Shape', () => {
   it('should support global options', () => {
     let obj = shape({a:1}, "{a:?,b:?i}");
     assert(obj.b === null);
-    config({options: {excludeOptional: false}});
-    obj = shape({a:1}, "{a:?,b:?i}");
+    obj = shape({a:1}, "{a:?,b:?i}", {_optional: true});
     assert(obj.b !== null);
   });
 
@@ -73,9 +72,9 @@ describe('Shape', () => {
   });
 
   it('should exclude optional objects', () => {
-    let obj = shape({}, "{a:?{b:i}}", {excludeOptional: false});
+    let obj = shape({}, "{a:?{b:i}}", {_optional: true});
     assert.deepEqual(obj, {a: {b: 0}});
-    obj = shape({}, "{a:?{b:i}}", {excludeOptional: true});
+    obj = shape({}, "{a:?{b:i}}");
     assert.deepEqual(obj, {a: null});
   });
 
@@ -156,24 +155,29 @@ describe('Verify', () => {
   });
 
   it('should work with custom validators', () => {
-    config({types: {'custom': function (v, args) {
-      return v === 'hello';
-    }}});
     
-    assert(verify({ a: 'hello' }, '{a: custom }') === true, 'Failed');
+    assert(verify({ a: 'hello' }, '{a: custom }',    {
+      'custom': function (v, args) {
+        return v === 'hello';
+      }
+    }) === true, 'Failed');
 
-    config({types:{'my_val': function (v, args) {
-      return v === 'hello';
-    }}});
-    assert(verify({ a: 'hello' }, '{a:my_val }') === true, 'Failed' );
+    
+    assert(verify({ a: 'hello' }, '{a:my_val }',{'my_val': function (v, args) {
+        return v === 'hello';
+      }
+    }) === true, 'Failed' );
 
     expect(() =>
-      verify({ a: 'world' }, '{a:my_val }')
+      verify({ a: 'world' }, '{a:my_val }', {'my_val': function (v, args) {
+          return v === 'hello';
+        }
+      })
     ).to.throw('json.a: validation failed');
 
-    config({types: {'custom': function (v, args) {
+    AltTypes.extend({'custom': function (v, args) {
       return (args.parent.type === 'foo' && v === 'bar') || (args.parent.type === 'hello' && v === 'world');
-    }}});
+    }});
 
     let json = [
       { type: 'hello', value: 'world' },
@@ -186,14 +190,22 @@ describe('Verify', () => {
   });
 
   it('should support enum validators', () => {
-    config({types: {x: ['foo', 'bar']}});
-    expect(verify({ a: 'foo' }, '{a:x}')).to.be.true;
-    expect(() => verify({ a: 'baz' }, '{a:x}')).to.throw('json.a: validation failed');
+    expect(verify({ a: 'foo' }, '{a:x}',{x: ['foo', 'bar']})).to.be.true;
+    expect(() => verify({ a: 'baz' }, '{a:x}', {x: ['foo', 'bar']})).to.throw('json.a: validation failed');
   });
 
   it('should verify functions', () => {
     expect(verify({a:1, b:function(){}}, '{a:i,b:f}')).to.be.true;
   });
+
+  it('should verify number', () => {
+    let sch = '{field_singleline:{value:s},field_location:{value:{longitude:n,latitude:n}}}';
+    let data = {
+      field_singleline: { value: 'this is a single line string' },
+      field_location: { value: { longitude: -122, latitude: 37 } }
+    };
+    expect(verify(data, sch)).to.be.true;
+  })
 
   it('should work with complex objects', () => {
     expect(() => verify({ a: 1, b: { c: 'a', d: [1, '2', { e: true }] } }, '{a:i,b:{c,d:[i,s,{e:i}]}}')).to.throw(
@@ -219,10 +231,6 @@ describe('Verify', () => {
         '[{a:i,b:i}]'
       )
     ).to.throw('json.1.b: validation failed');
-    config({types:{
-      'lat': (val) => val >= -90 && val <= 90,
-      'long': (val) => val >= -180 && val <= 180
-    }});
     expect(
       verify(
         {
@@ -237,7 +245,10 @@ describe('Verify', () => {
             },
           ],
         },
-        '{markers:[{name,location:[lat,long]}]}')
+        '{markers:[{name,location:[lat,long]}]}',{
+          'lat': (val) => val >= -90 && val <= 90,
+          'long': (val) => val >= -180 && val <= 180
+        })
     ).to.be.true;
 
     expect(
