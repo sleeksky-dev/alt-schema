@@ -1,6 +1,6 @@
 {
   "name": "@sleeksky/alt-schema",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Easify verify and shape JSON objects using a simplified alternative JSON schema",
   "main": "./lib/index.js",
   "scripts": {
@@ -33,8 +33,8 @@
     "json-schema-validator",
     "json-schema-validation"
   ],
-  "author": "Yusuf Bhabhrawala <yusuf@sleeksky.com>",
-  "license": "MIT",
+  "author": "Yusuf Bhabhrawala",
+  "license": "BSD-3-Clause",
   "bugs": {
     "url": "https://github.com/sleeksky-dev/alt-schema/issues"
   },
