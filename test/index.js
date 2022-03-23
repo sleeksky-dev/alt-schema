@@ -97,6 +97,11 @@ describe("Shape", () => {
     let obj = shape({}, "{a:i:1,b:s:2,c:n:2.1,d:b:true}");
     assert.deepEqual(obj, {a: 1, b: "2", c: 2.1, d: true});
   })
+
+  it("Should shape required null values", () => {
+    let obj = shape({b:1,a:null}, "{b:i,a:b:false}");
+    assert.deepEqual(obj, {b:1,a:false});
+  });
 });
 
 describe("Check", () => {

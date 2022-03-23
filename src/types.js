@@ -53,7 +53,7 @@ class AltTypes {
     cast(k, value) {
         if (!this.has(k)) return null;
         if (["b","boolean"].indexOf(k) >= 0) {
-            if (["true","1","yes", true]) return true;
+            if (["true","1","yes", true].indexOf(value) >= 0) return true;
             return false;
         }
         if (["i","integer"].indexOf(k) >= 0) return parseInt(value);        
