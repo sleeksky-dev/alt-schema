@@ -49,6 +49,18 @@ class AltTypes {
     has(k) {
         return !!this.types[k];
     }
+
+    cast(k, value) {
+        if (!this.has(k)) return null;
+        if (["b","boolean"].indexOf(k) >= 0) {
+            if (["true","1","yes", true]) return true;
+            return false;
+        }
+        if (["i","integer"].indexOf(k) >= 0) return parseInt(value);        
+        if (["n","number"].indexOf(k) >= 0) return parseFloat(value);
+
+        return value;
+    }
     
     check(k, obj, opts) {
         if (!this.has(k)) return false;

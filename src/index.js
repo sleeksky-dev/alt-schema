@@ -125,7 +125,7 @@ const shape = (json, schema, options = {}) => {
     let m;
     if (def && (m = def.match(RX.DEFAULTS))) def = default_strings[m[1] * 1];
 
-    if (types.has(type)) return (value && types.check(type, value)) ? value : (def !== undefined) ? def : types.sample(type);
+    if (types.has(type)) return (value && types.check(type, value)) ? value : (def !== undefined) ? types.cast(type, def) : types.sample(type);
 
     return value || def || "Not defined!";
   };

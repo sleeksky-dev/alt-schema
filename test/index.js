@@ -92,6 +92,11 @@ describe("Shape", () => {
     let obj = shape({ a: 1, b: 2, c: 3 }, "{a:i,b:s,c:f}");
     assert.isFunction(obj.c);
   });
+
+  it("Should cast default values", () => {
+    let obj = shape({}, "{a:i:1,b:s:2,c:n:2.1,d:b:true}");
+    assert.deepEqual(obj, {a: 1, b: "2", c: 2.1, d: true});
+  })
 });
 
 describe("Check", () => {
