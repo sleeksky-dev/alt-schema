@@ -4,7 +4,7 @@
 /* eslint-disable no-unused-expressions */
 import chai, { assert, expect } from "chai";
 import _ from "lodash";
-import { verify, shape, check, toAltSchema, _flatten, typeShape, extendTypes } from "../src";
+import { verify, shape, check, toAltSchema, _flatten, typeShape, extendTypes, setEnv } from "../src";
 
 describe("typeShape", () => {
   it("should return shape type", () => {
@@ -224,6 +224,16 @@ describe("Verify", () => {
       field_location: { value: { longitude: -122, latitude: 37 } },
     };
     expect(verify(data, sch)).to.be.true;
+  });
+
+  it("should not verify when env is not development", () => {
+    setEnv("production");
+    expect(verify({ a: 1 }, "{a:i}")).to.be.undefined;
+  });
+
+  it("should verify when env is development", () => {
+    setEnv("development");
+    expect(verify({ a: 1 }, "{a:i}")).to.be.true;
   });
 
   it("should work with complex objects", () => {

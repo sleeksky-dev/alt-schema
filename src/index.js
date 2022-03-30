@@ -18,6 +18,11 @@ const RX = {
   DEFAULTS: /^\$([0-9]+)$/
 }
 
+let env = null;
+const setEnv = (e) => {
+  env = e;
+}
+
 const _flatten = (schema) => {
   let lookups = [];
 
@@ -194,6 +199,7 @@ const shape = (json, schema, options = {}) => {
 };
 
 const verify = (json, schema, options={}) => {
+  if (env && env !== "development") return;
   const types = new AltTypes(options);
   let errors = [];
   let jsonPath = options._path || 'json';
@@ -293,4 +299,4 @@ const extendTypes = (types) => {
   AltTypes.extend(types);
 }
 
-export { verify, check, shape, toAltSchema, _flatten, typeShape, extendTypes };
+export { verify, check, shape, toAltSchema, _flatten, typeShape, extendTypes, setEnv };

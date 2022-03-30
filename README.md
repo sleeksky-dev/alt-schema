@@ -70,6 +70,17 @@ let object = {"a":1, "b":[1,2,3], "c": 10}
 verify(object, schema); 
 // Throws error: 'json.c: validation failed'
 ```
+You can use verify as a simpler alternative to TypeScript in ES5/ES6 code by using setEnv. Calling `verify()` will not do anything when the env is not `development`
+```JavaScript
+const { verify, setEnv } = require("@sleeksky/alt-schema");
+
+setEnv("development");
+verify({a:1}, "{a:s}"); // Throws an error
+
+setEnv("production");
+verify({a:1}, "{a:s}") // returns undefined
+
+```
 
 # check
 Same as verify except returns boolean instead of throwing error
