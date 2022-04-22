@@ -89,7 +89,7 @@ const {check} = require("@sleeksky/alt-schema");
 
 let schema = "{a:i,b:[i],c:?b}";
 let object = {"a":1, "b":[1,2,3], "c": 10}
-verify(object, schema); 
+check(object, schema); 
 // false
 ```
 
@@ -145,4 +145,4 @@ shape({},"{a?s}", {_optional:true});
 
 # License
 
-MIT © SleekSky LLC
+MIT © Yusuf Bhabhrawala, SleekSky LLC
