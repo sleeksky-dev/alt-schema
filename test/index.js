@@ -102,6 +102,11 @@ describe("Shape", () => {
     let obj = shape({b:1,a:null}, "{b:i,a:b:false}");
     assert.deepEqual(obj, {b:1,a:false});
   });
+
+  it("Should shape boolean", () => {
+    let obj = shape({localize: false}, "{localize:b:false}");
+    console.log(obj)
+  })
 });
 
 describe("Check", () => {
