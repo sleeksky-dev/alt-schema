@@ -52,7 +52,6 @@ describe("Shape", () => {
         return typeof val === "string" || val instanceof String ? true : false;
       },
     });
-    console.log("val", val);
     assert.deepEqual(val, { a: "http://example.com", b: "http://example.com" });
   });
 
@@ -105,7 +104,6 @@ describe("Shape", () => {
 
   it("Should shape boolean", () => {
     let obj = shape({localize: false}, "{localize:b:false}");
-    console.log(obj)
   })
 });
 
@@ -125,6 +123,15 @@ describe("Verify", () => {
   it("should validate schema definition", () => {
     expect(verify({ a: [1, "2"] }, "{a:?[:i,s]}")).to.be.true;
     expect(() => verify({}, "{a:[i,s]}}")).to.throw("Schema error: probably invalid braces or brackets");
+  });
+
+  it("should return list of errors", () => {
+    try {
+      verify({}, "{a:i, b:i}")      
+    } catch (error) {
+      expect(error.errors[0][0]).to.equals("json.a")
+      expect(error.errors.length).to.equal(2)
+    }
   });
 
   it("should verify simple plain objects", () => {
@@ -161,7 +168,7 @@ describe("Verify", () => {
 
   it("should support sample defaults in schema", () => {
     expect(verify({ a: 1, b: 2 }, "{a:i:0,b:i:0,c:?:1}")).to.be.true;
-    expect(() => verify({ a: 1, b: 2 }, "{a:i:0,b:s:0,c:s:1}")).to.throw("json.b: validation failed, json.c: is required");
+    expect(() => verify({ a: 1, b: 2 }, "{a:i:0,b:s:0,c:s:1}")).to.throw("Validation failed: 2 errors found");
 
     expect(verify([1, "hello", 2, "world"], '[i:0,s:"hello world"]')).to.be.true;
     expect(() => verify([1, "hello", 2, 3], '[i:0,s:"hello world"]')).to.throw("json.3: validation failed");
@@ -216,6 +223,11 @@ describe("Verify", () => {
   it("should support enum validators", () => {
     expect(verify({ a: "foo" }, "{a:x}", { x: ["foo", "bar"] })).to.be.true;
     expect(() => verify({ a: "baz" }, "{a:x}", { x: ["foo", "bar"] })).to.throw("json.a: validation failed");
+  });
+
+  it("should support regex validators", () => {
+    expect(verify({ a: "foo" }, "{a:x}", { x: /fo+/ })).to.be.true;
+    expect(() => verify({ a: "baz" }, "{a:x}", { x: /fo+/ })).to.throw("json.a: validation failed");
   });
 
   it("should verify functions", () => {

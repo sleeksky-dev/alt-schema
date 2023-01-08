@@ -7,6 +7,7 @@
 /* eslint-disable no-cond-assign */
 import {isArray, isObject} from "lodash";
 import AltTypes from "./types";
+import AltError from "./alt-error";
 
 const RX = {
   FLAT_ARRAY: /(\[([^\[\]\{\}]*)\])/,
@@ -33,7 +34,7 @@ const _flatten = (schema) => {
     schema = schema.substr(0, m.index) + `$${default_strings.length}` + schema.substr(m.index + m[0].length);
     default_strings.push(m[1]);
   }
-  if (schema.match(/"/)) throw "Missing closing quote";
+  if (schema.match(/"/)) throw new Error("Missing closing quote");
 
   // strip all white spaces
   schema = schema.replace(/\s/g, "");
@@ -49,7 +50,7 @@ const _flatten = (schema) => {
 
     if (found) reduce(schema);
     if (!found && schema.match(RX.MALFORMED) ) {
-      throw "Schema error: probably invalid braces or brackets";
+      throw new Error("Schema error: probably invalid braces or brackets");
     }
     return schema;
   }
@@ -230,22 +231,22 @@ const verify = (json, schema, options={}) => {
       let def;
       [schema, def] = schema.split(":");
       if (value === undefined || value === null) {
-        errors.push(`${path}: is required`);
+        errors.push([path, 'is required']);
         return false;
       }
 
       if (schema === "") return true; // no validation needed
 
-      if (!types.has(schema)) throw `Schema error: Validator - ${schema} - not found`;
+      if (!types.has(schema)) throw new Error(`Schema error: Validator - ${schema} - not found`);
       else if (types.check(schema, value, { path, json, parent })) return true;
       else {
-        errors.push(`${path}: validation failed`);
+        errors.push([path, 'validation failed']);
         return false;
       }
     } else if ((m = schema.match(RX.FLAT_ARRAY))) {
       // if array
       if (!isArray(value)) {
-        errors.push(`${path}: should be array`);
+        errors.push([path, 'should be array']);
         return false;
       }
       schema = m[2];
@@ -256,7 +257,7 @@ const verify = (json, schema, options={}) => {
     } else if ((m = schema.match(RX.FLAT_OBJECT))) {
       // if object
       if (!isObject(value) || isArray(value)) {
-        errors.push(`${path}: should be object`);
+        errors.push([path, 'should be object']);
         return false;
       }
       schema = m[2];
@@ -280,23 +281,25 @@ const verify = (json, schema, options={}) => {
   }
 
   validate({ path: jsonPath, value: json, schema });
-  if (errors.length > 0) throw errors.join(", ");
+  if (errors.length > 0) throw new AltError(errors);
 
   return true;
 };
 
 // same as verify. returns boolean. won't throw.
-const check = (json, schema) => {
+const check = (json, schema, options) => {
   try {
-    verify(json, schema);
+    verify(json, schema, options);
     return true;
   } catch (error) {
-    if (error.match(/^Schema error/)) throw error;
+    if (error.message.match(/^Schema error/)) throw error;
     return false;
   }
 };
 const extendTypes = (types) => { 
   AltTypes.extend(types);
 }
+
+exports = module.exports = { verify, check, shape, toAltSchema, _flatten, typeShape, extendTypes, setEnv };
 
 export { verify, check, shape, toAltSchema, _flatten, typeShape, extendTypes, setEnv };

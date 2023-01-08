@@ -1,4 +1,4 @@
-import {isArray, isObject, isString, isNumber, isBoolean, isInteger, isFunction} from "lodash";
+import {isArray, isObject, isString, isNumber, isBoolean, isInteger, isFunction, isRegExp} from "lodash";
 
 class AltTypes {
     constructor(types) {
@@ -16,6 +16,13 @@ class AltTypes {
                 return (v) => {
                     if (v !== undefined) return !isString(v) || lk.indexOf(v) >= 0;
                     else return lk[(Math.random() * lk.length) | 0];
+                }
+            }))(fn);
+        } else if (isRegExp(fn)) {
+            fn = ((lk => {
+                return (v) => {
+                    if (v !== undefined) return !isString(v) || lk.test(v);
+                    else return lk.source.replace(/\\(.)/g, "$1");
                 }
             }))(fn);
         }
@@ -62,6 +69,7 @@ class AltTypes {
         return value;
     }
     
+    // opts = { path, json, parent }
     check(k, obj, opts) {
         if (!this.has(k)) return false;
         return this.types[k](obj, opts);    
